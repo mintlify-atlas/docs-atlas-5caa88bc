@@ -4,7 +4,7 @@ sidebarTitle: "Completion Modes"
 description: "Control how SWLS suggests RDF properties using the loose, strict, and none completion modes, with per-namespace overrides via swls.completion.strict and .except."
 ---
 
-SWLS offers three property completion modes that control which properties appear in the suggestion list for a given subject node: `none` defers to the server's built-in ranking, `loose` surfaces all known properties regardless of type declarations, and `strict` filters suggestions to properties whose `rdfs:domain` matches the subject's declared `rdf:type`. You can also override the global mode on a per-namespace basis using `swls.completion.strict` and `swls.completion.except`.
+SWLS offers three property completion modes that control which properties appear in the suggestion list for a given subject node: `none` uses the server default, `loose` surfaces all known properties regardless of type declarations, and `strict` filters suggestions to properties whose `rdfs:domain` matches the subject's declared `rdf:type`. You can also override the global mode on a per-namespace basis using `swls.completion.strict` and `swls.completion.except`.
 
 ---
 
@@ -16,7 +16,7 @@ SWLS offers three property completion modes that control which properties appear
 { "swls.completion.mode": "none" }
 ```
 
-The server uses its own default property ranking. In practice this means properties are ordered by how closely their domain matches the current subject type, but no suggestions are filtered out. This is the safest choice when you are getting started and want to see everything the server knows about.
+The server uses its own default property ranking. This is the safest choice when you are getting started and want to see everything the server knows about.
 
 ---
 
@@ -36,7 +36,7 @@ Every property in the indexed ontologies is offered as a completion for any subj
 { "swls.completion.mode": "strict" }
 ```
 
-Only properties whose `rdfs:domain` is compatible with the subject's declared `rdf:type` are suggested. Subjects without a declared type receive no property suggestions. Use `strict` mode when working with large ontologies (e.g. Schema.org) where the full property list would otherwise be overwhelming.
+Only properties whose `rdfs:domain` is compatible with the subject's declared `rdf:type` are suggested. Use `strict` mode when working with large ontologies (e.g. Schema.org) where the full property list would otherwise be overwhelming.
 
 <Tip>
   `strict` mode is strongly recommended when you have loaded a large ontology such as Schema.org. Limiting suggestions to domain-matched properties keeps the completion list short and relevant, significantly reducing the time spent scanning irrelevant items.
@@ -56,7 +56,7 @@ Add the following to your `settings.json` (user or workspace level):
 
 ## Per-namespace overrides
 
-The global `swls.completion.mode` can be overridden for individual namespace URI prefixes. Both override settings take precedence over the global mode.
+The global `swls.completion.mode` can be overridden for individual namespace URI prefixes using `swls.completion.strict` and `swls.completion.except`. When either array is non-empty, it takes precedence over whatever `swls.completion.mode` is set to — `swls.completion.strict` is checked first, then `swls.completion.except`; the global mode string is only used when both arrays are empty.
 
 ### `swls.completion.strict` — enforce domain matching for specific namespaces in `loose` mode
 
@@ -88,7 +88,7 @@ Properties from those namespaces will always appear in completions regardless of
 ---
 
 <Note>
-  `swls.completion.strict` and `swls.completion.except` both take precedence over whatever `swls.completion.mode` is set to. If a property's namespace matches an entry in `swls.completion.strict`, it is treated as strict; if it matches `swls.completion.except`, it is treated as loose — regardless of the global mode value.
+  `swls.completion.strict` and `swls.completion.except` both take precedence over `swls.completion.mode`. When `swls.completion.strict` is non-empty, it is applied and the mode setting is ignored entirely. When `swls.completion.except` is non-empty (and `swls.completion.strict` is empty), it is applied and the mode setting is ignored. The mode string is only used when both arrays are empty.
 </Note>
 
 ---

@@ -1,10 +1,10 @@
 ---
-title: "SWLS: Semantic Web IDE Support for VS Code"
+title: "SWLS VS Code Extension: Semantic Web Language Server"
 sidebarTitle: "Introduction"
 description: "SWLS is a VS Code extension providing autocompletion, diagnostics, formatting, and SHACL validation for Turtle, TriG, JSON-LD, and SPARQL."
 ---
 
-SWLS (Semantic Web Language Server) is a VS Code extension that brings full IDE support to Semantic Web languages. It covers Turtle, TriG, JSON-LD, and SPARQL — offering autocompletion, diagnostics, formatting, SHACL shape validation, hover documentation, semantic highlighting, and more. On desktop, SWLS runs a native `swls` binary over stdio for best performance; if no binary is present it falls back to a bundled WASM worker so the language server is available immediately with zero extra setup. In browser-based VS Code environments (such as vscode.dev), SWLS runs entirely via a Web Worker.
+SWLS (Semantic Web Language Server) is a VS Code extension that brings full IDE support to Semantic Web languages. It covers Turtle, TriG, JSON-LD, and SPARQL — offering autocompletion, diagnostics, formatting, SHACL shape validation, hover documentation, semantic highlighting, and more. On desktop, SWLS checks the `swls.command` setting first, then looks for a native `swls` binary bundled in its extension directory; if neither is present it falls back to a WASM worker so the language server is available immediately with zero extra setup. In browser-based VS Code environments (such as vscode.dev), SWLS runs entirely via a Web Worker.
 
 ## Supported languages
 
@@ -23,7 +23,7 @@ SWLS (Semantic Web Language Server) is a VS Code extension that brings full IDE 
 
 SWLS adapts its startup strategy to the environment it is running in:
 
-- **Desktop (Node.js)** — On activation, the extension first looks for a native `swls` binary in its own extension directory (or the path specified in `swls.command`). If found, it spawns it as a child process and communicates via stdio using the Language Server Protocol. This path offers the lowest latency and CPU overhead.
+- **Desktop (Node.js)** — On activation, the extension resolves the server binary in order: first it checks whether `swls.command` is set in your VS Code settings and uses that path if so; otherwise it looks for a native `swls` (or `swls.exe` on Windows) binary in its own extension directory. If a binary is found either way, it is spawned as a child process and communicates via stdio using the Language Server Protocol. This path offers the lowest latency and CPU overhead.
 - **Desktop WASM fallback** — If no native binary is present, the extension loads a bundled WASM build of the language server inside a Node.js `worker_threads` Worker. The worker communicates via `postMessage`, and the client bridges that to LSP's Content-Length framing. This means the full feature set is available the moment you install the extension, before any binary download.
 - **Browser (vscode.dev / GitHub Codespaces web)** — The `browser` entry point in the extension manifest (`browserClientMain`) spins up a Web Worker using the VS Code `Worker` API and runs the WASM server bundle inside it. No Node.js APIs are used; all file-system requests are proxied back to the extension host through custom LSP request handlers (`custom/readFile`, `custom/readDir`, `custom/glob`, etc.).
 

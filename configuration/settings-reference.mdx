@@ -10,21 +10,21 @@ All SWLS settings live under the `swls` prefix and can be configured through the
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
-| `swls.command` | `string` | `""` | Path to the `swls` binary. If empty, the bundled binary in the extension directory is used; falls back to the WASM worker if no binary is found. |
-| `swls.turtle` | `boolean` | `true` | Enable Turtle language support (`.ttl` files). |
-| `swls.trig` | `boolean` | `true` | Enable TriG language support (`.trig` files). |
-| `swls.jsonld` | `boolean` | `true` | Enable JSON-LD language support (`.jsonld`, `.json` files). |
-| `swls.sparql` | `boolean` | `false` | Enable SPARQL language support (`.sq`, `.rq` files). Experimental. |
-| `swls.checkUpdate` | `boolean` | `true` | Check GitHub releases for a newer `swls` binary on startup. |
-| `swls.automaticUpdate` | `boolean` | `false` | Download and install updates automatically without prompting. |
+| `swls.command` | `string` | `""` | Path to the `swls` binary. If empty, the bundled binary in the extension directory is used. |
+| `swls.checkUpdate` | `boolean` | `true` | Check for new releases from GitHub. |
+| `swls.automaticUpdate` | `boolean` | `false` | Automatically install new updates. |
 | `swls.log` | `string` | `"debug"` | Log level for the language server. One of: `error`, `warn`, `info`, `debug`, `trace`. |
-| `swls.ontologies` | `string[]` | `[]` | Array of ontology URLs (Turtle/RDF) that SWLS fetches and indexes for completions. |
-| `swls.shapes` | `string[]` | `[]` | Array of SHACL shape URLs. SWLS validates open documents against these shapes in real time. |
-| `swls.disabled` | `string[]` | `[]` | Features to disable. Currently accepts `"shapes"` to turn off SHACL validation entirely. |
-| `swls.prefixDisabled` | `string[]` | `[]` | Prefix short names from prefix.cc to suppress from prefix completions (e.g. `"dct"`, `"dcterms"`). |
+| `swls.turtle` | `boolean` | `true` | Enable Turtle Language. |
+| `swls.trig` | `boolean` | `true` | Enable TriG Language. |
+| `swls.jsonld` | `boolean` | `true` | Enable JSON-LD Language. |
+| `swls.sparql` | `boolean` | `false` | Enable SPARQL Language. |
+| `swls.ontologies` | `string[]` | `[]` | Extra ontology URLs to import. |
+| `swls.shapes` | `string[]` | `[]` | Extra shape URLs to import. |
+| `swls.disabled` | `string[]` | `[]` | Features to disable (e.g. `"shapes"`). |
+| `swls.prefixDisabled` | `string[]` | `[]` | Prefixes from prefix.cc to hide from completions. |
 | `swls.completion.mode` | `string` | `"none"` | Property completion mode: `none` (server default), `loose` (all properties), `strict` (domain-matched only). |
-| `swls.completion.strict` | `string[]` | `[]` | Namespace URI prefixes that require domain matching even when the global mode is `loose`. Takes precedence over `swls.completion.mode`. |
-| `swls.completion.except` | `string[]` | `[]` | Namespace URI prefixes always suggested regardless of domain even when the global mode is `strict`. Takes precedence over `swls.completion.mode`. |
+| `swls.completion.strict` | `string[]` | `[]` | Namespace prefixes that require a matching domain (used when mode is `loose` to selectively enforce strictness). Takes precedence over mode. |
+| `swls.completion.except` | `string[]` | `[]` | Namespace prefixes that are always suggested regardless of domain (used when mode is `strict` to selectively relax strictness). Takes precedence over mode. |
 
 ---
 

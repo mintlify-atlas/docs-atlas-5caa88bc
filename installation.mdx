@@ -1,5 +1,5 @@
 ---
-title: "Install SWLS in VS Code or NeoVim"
+title: "Installing SWLS – Semantic Web Language Server in VS Code"
 sidebarTitle: "Installation"
 description: "Install the Semantic Web Language Server extension from VS Code Marketplace, Open VSX, or configure it in NeoVim with the swls.nvim plugin."
 ---
@@ -31,8 +31,9 @@ SWLS can be installed in VS Code directly from the Visual Studio Marketplace or 
 
     When the extension activates it determines the best available server implementation:
 
-    1. **Native binary** — SWLS looks for an `swls` (or `swls.exe` on Windows) binary inside its own extension directory. If `swls.command` is set in your settings, that path is used instead. The binary is launched as a child process over stdio.
-    2. **WASM fallback** — If no native binary is found, the extension loads a bundled WASM build of the language server inside a Node.js `worker_threads` Worker. All LSP features are available immediately; there is no need to wait for a binary download.
+    1. **`swls.command` setting** — If `swls.command` is set to a non-empty path in your VS Code settings, SWLS uses that binary directly.
+    2. **Bundled binary** — Otherwise, SWLS looks for an `swls` (or `swls.exe` on Windows) binary inside its own extension directory. If found, it is launched as a child process over stdio.
+    3. **WASM fallback** — If neither of the above produces a binary, the extension loads a bundled WASM build of the language server inside a Node.js `worker_threads` Worker. All LSP features are available immediately; there is no need to wait for a binary download.
 
     <Info>
       You can set `"swls.command": "/usr/local/bin/swls"` in your VS Code settings to point SWLS at a binary you have built or installed manually, instead of the one bundled in the extension directory.

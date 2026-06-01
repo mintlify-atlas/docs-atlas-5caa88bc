@@ -1,5 +1,5 @@
 ---
-title: "Get started with SWLS in 5 minutes"
+title: "SWLS Quickstart: Autocompletion and Diagnostics in 5 Minutes"
 sidebarTitle: "Quickstart"
 description: "Open a Turtle file and explore SWLS completions, diagnostics, and formatting in under 5 minutes. No configuration required to get started."
 ---
@@ -41,6 +41,9 @@ SWLS activates the moment you open a supported file — no configuration require
     After the subject declaration, type a predicate position — for example, place your cursor after the trailing `;` on `ex:alice a foaf:Person ;` and press `Space`. SWLS analyses the subject type (`foaf:Person`) and surfaces property suggestions ordered by domain relevance. Select `foaf:name` from the list to insert it along with a placeholder value.
 
     ```turtle
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+    @prefix ex:   <http://example.org/> .
+
     ex:alice a foaf:Person ;
         foaf:name "Alice" ;
         foaf:knows ex:bob .

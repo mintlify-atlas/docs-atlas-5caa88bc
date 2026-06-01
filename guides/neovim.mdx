@@ -43,19 +43,22 @@ mv swls /usr/local/bin/swls
 
 **3. Configure nvim-lspconfig**
 
-Register `swls` as a custom server and call `.setup {}` to activate it. The minimal Lua configuration below covers the four file types SWLS understands:
+Because `swls` is not a built-in nvim-lspconfig server, register it as a custom config first using `require('lspconfig.configs')`, then call `.setup {}` to activate it. The minimal Lua configuration below covers the four file types SWLS understands:
 
 ```lua
 local lspconfig = require('lspconfig')
+local configs = require('lspconfig.configs')
 
-lspconfig.swls = {
-  default_config = {
-    cmd = { '/usr/local/bin/swls' },
-    filetypes = { 'turtle', 'trig', 'jsonld', 'sparql' },
-    root_dir = lspconfig.util.root_pattern('.git', '.'),
-    settings = {},
-  },
-}
+if not configs.swls then
+  configs.swls = {
+    default_config = {
+      cmd = { '/usr/local/bin/swls' },
+      filetypes = { 'turtle', 'trig', 'jsonld', 'sparql' },
+      root_dir = lspconfig.util.root_pattern('.git', '.'),
+      settings = {},
+    },
+  }
+end
 
 lspconfig.swls.setup {}
 ```

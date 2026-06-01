@@ -1,5 +1,5 @@
 ---
-title: "Semantic Token Highlighting for RDF and SPARQL"
+title: "Semantic Token Highlighting for RDF, SPARQL, and JSON-LD"
 sidebarTitle: "Highlighting"
 description: "SWLS provides full semantic token highlighting for Turtle, TriG, JSON-LD, and SPARQL, with custom token types for language tags, booleans, and enums."
 ---
@@ -8,27 +8,44 @@ VS Code supports two layers of syntax highlighting: syntactic (TextMate grammar-
 
 ## Enabled by default
 
-Semantic highlighting is activated for all four languages out of the box via the extension's `configurationDefaults`. No configuration is required:
+Semantic highlighting is activated for all four languages out of the box via the extension's `configurationDefaults`. No configuration is required. The extension also sets a few additional editor defaults for each language to improve the editing experience:
 
 ```json
 {
   "[turtle]": {
-    "editor.semanticHighlighting.enabled": true
+    "editor.semanticHighlighting.enabled": true,
+    "editor.inlayHints.enabled": "on",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.snippetSuggestions": "top"
   },
   "[trig]": {
-    "editor.semanticHighlighting.enabled": true
+    "editor.semanticHighlighting.enabled": true,
+    "editor.inlayHints.enabled": "on",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.snippetSuggestions": "top"
   },
   "[jsonld]": {
-    "editor.semanticHighlighting.enabled": true
+    "editor.semanticHighlighting.enabled": true,
+    "editor.inlayHints.enabled": "on",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.snippetSuggestions": "top"
   },
   "[sparql]": {
-    "editor.semanticHighlighting.enabled": true
+    "editor.semanticHighlighting.enabled": true,
+    "editor.inlayHints.enabled": "on",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.snippetSuggestions": "top"
   }
 }
 ```
 
+- **`editor.semanticHighlighting.enabled`** — enables the LSP-driven semantic token layer for SWLS tokens.
+- **`editor.inlayHints.enabled`** — shows inlay hints (e.g. resolved prefix URIs) inline in the editor.
+- **`editor.tabCompletion`** — `"onlySnippets"` makes the Tab key cycle through snippet completions only, avoiding conflicts with standard completions.
+- **`editor.snippetSuggestions`** — `"top"` places snippet items at the top of the completion list.
+
 <Tip>
-  If you have previously set `editor.semanticHighlighting.enabled` to `false` for one of these languages in your own `settings.json`, that override takes precedence. Remove or flip it to restore SWLS semantic highlighting.
+  If you have previously set any of these to different values in your own `settings.json`, your override takes precedence. For example, set `"editor.semanticHighlighting.enabled": false` for a specific language to disable SWLS semantic tokens for that language only.
 </Tip>
 
 ## Custom semantic token types

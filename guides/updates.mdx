@@ -48,7 +48,7 @@ Set `swls.checkUpdate` to `false` to opt out of update checks entirely. The exte
 
 ## Using a custom binary
 
-Set `swls.command` to the absolute path of a specific `swls` binary. When this setting is non-empty, the extension uses that binary directly and bypasses both the bundled binary lookup and the update check.
+Set `swls.command` to the absolute path of a specific `swls` binary. When this setting is non-empty, the extension uses that binary directly instead of looking for a bundled binary in the extension directory.
 
 ```json
 {
@@ -63,7 +63,7 @@ This is useful for:
 - **System-wide installs** — share a single binary across multiple VS Code workspaces.
 
 <Warning>
-  When `swls.command` is set, the extension does not validate the binary version. Make sure the path stays valid; if the binary is missing or fails to start, the extension falls back to the WASM worker.
+  When `swls.command` is set, the update check still runs on startup (if `swls.checkUpdate` is `true`). It reads the version of your custom binary and compares it to the latest GitHub release — but any downloaded update is installed to the extension directory, not to the path you specified. Make sure the path stays valid; if the binary is missing or fails to start, the extension falls back to the WASM worker.
 </Warning>
 
 ## Supported platforms
