@@ -1,0 +1,70 @@
+---
+title: "Diagnostics: Errors, Prefixes, and SHACL Violations"
+sidebarTitle: "Diagnostics"
+description: "SWLS reports syntax errors, undefined namespace prefixes, and SHACL shape violations inline as you edit Turtle, TriG, JSON-LD, and SPARQL files."
+---
+
+SWLS surfaces three categories of diagnostics directly in the editor as you type: syntax errors that prevent a document from parsing, undefined namespace prefix references that would break serialization, and SHACL constraint violations that indicate data does not conform to a loaded shape. All three appear as inline squiggles and populate the VS Code **Problems** panel, giving you immediate feedback without leaving your editor.
+
+## Syntax errors
+
+Any token or structural issue that makes a document unparsable is reported immediately. The diagnostic points to the exact position of the offending token, so you can fix it without hunting through the file.
+
+```turtle
+@prefix ex: <http://example.org/> .
+
+ex:Alice a ex:Person ;
+    ex:name "Alice"
+    ex:age 30 .        # ← missing semicolon on the line above
+```
+
+The missing `;` after `"Alice"` causes a parse error. SWLS highlights the unexpected token and shows a message in the Problems panel.
+
+## Undefined prefixes
+
+If you use a prefixed name whose `@prefix` declaration is absent from the file, SWLS flags every occurrence of that prefix. This catches typos and copy-paste errors before you run any tooling.
+
+```turtle
+# No @prefix foaf declaration in this file
+
+ex:Alice a foaf:Person ;    # ← "foaf" is not declared
+    foaf:name "Alice" .     # ← flagged here too
+```
+
+Adding the missing declaration resolves both diagnostics at once:
+
+```turtle
+@prefix ex:   <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:Alice a foaf:Person ;
+    foaf:name "Alice" .
+```
+
+## SHACL shape violations
+
+When SHACL shapes are loaded — either from `swls.shapes` URLs or from files in the workspace — SWLS validates each graph against those shapes and reports violations inline. A violation diagnostic includes the constraint that failed and the node that triggered it.
+
+```turtle
+@prefix ex:   <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Shape requires foaf:name to be a plain literal (xsd:string).
+# Providing an integer violates that constraint.
+ex:Alice a foaf:Person ;
+    foaf:name 42 .     # ← SHACL violation: expected xsd:string
+```
+
+If SHACL validation produces noise you do not want — for example while the data is intentionally incomplete — you can disable it:
+
+```json
+{
+  "swls.disabled": ["shapes"]
+}
+```
+
+<Note>
+  SHACL validation only runs when shapes are actually loaded. If `swls.shapes` is empty and there are no shape files in the workspace, no shape violations will be reported regardless of the `swls.disabled` setting. See [Ontologies and Shapes](/configuration/ontologies-and-shapes) for how to load shapes.
+</Note>
+
+For a full walkthrough of configuring and using SHACL validation, see the [SHACL Validation guide](/guides/shacl-validation).

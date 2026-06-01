@@ -1,47 +1,94 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get started with SWLS in 5 minutes"
+sidebarTitle: "Quickstart"
+description: "Open a Turtle file and explore SWLS completions, diagnostics, and formatting in under 5 minutes. No configuration required to get started."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+SWLS activates the moment you open a supported file — no configuration required. This guide walks through the core features using a Turtle file so you can see completions, diagnostics, hover documentation, and formatting in action within minutes of installing the extension.
 
 ## Prerequisites
 
-Before you begin, you must have:
+- **VS Code >=1.100.0**
+- The **SWLS** extension installed (see [Installation](/installation))
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+## Walkthrough
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Open a Turtle file">
+    Create a new file named `example.ttl` and paste the following content:
 
-    ```bash
-    npm install your-package
+    ```turtle
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+    @prefix ex:   <http://example.org/> .
+
+    ex:alice a foaf:Person ;
+        foaf:name "Alice" ;
+        foaf:mbox <mailto:alice@example.org> .
     ```
+
+    As soon as the file is open, SWLS activates (you will see `swls` appear in the Output panel) and begins parsing the document.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+  <Step title="Trigger prefix completion">
+    On a new line, type `foaf` and pause. SWLS will offer a snippet completion that expands the short prefix name into a full `@prefix` declaration:
 
-    ```bash
-    your-cli init
+    ```turtle
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
     ```
+
+    Press `Tab` or `Enter` to accept. The prefix declaration is inserted at the top of the file and the cursor returns to your current position.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+  <Step title="Use property completion">
+    After the subject declaration, type a predicate position — for example, place your cursor after the trailing `;` on `ex:alice a foaf:Person ;` and press `Space`. SWLS analyses the subject type (`foaf:Person`) and surfaces property suggestions ordered by domain relevance. Select `foaf:name` from the list to insert it along with a placeholder value.
 
-    ```bash
-    your-cli start
+    ```turtle
+    ex:alice a foaf:Person ;
+        foaf:name "Alice" ;
+        foaf:knows ex:bob .
     ```
+
+    <Tip>
+      Set `"swls.completion.mode": "strict"` in your settings to limit suggestions to properties whose declared domain matches the subject type.
+    </Tip>
+  </Step>
+  <Step title="View hover documentation">
+    Hover over the IRI `foaf:Person` in the editor. SWLS fetches the FOAF ontology and displays the term's label, description, and type information in a hover popup — without leaving the editor.
+  </Step>
+  <Step title="Check diagnostics">
+    Delete the `@prefix foaf:` declaration from the top of the file and save. SWLS immediately underlines every occurrence of `foaf:` with a diagnostic error: **Undefined prefix**. The Problems panel (`Ctrl+Shift+M`) lists each violation with its file location.
+
+    Restore the prefix declaration to clear the errors.
+  </Step>
+  <Step title="Format the document">
+    Run **Format Document** (`Shift+Alt+F` on Windows/Linux, `Shift+Option+F` on macOS). SWLS rewrites the Turtle file with consistent indentation and spacing. If VS Code asks you to choose a formatter, select **SWLS**.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## SPARQL support
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+SPARQL support is experimental and **disabled by default**. To enable it, add the following to your `settings.json`:
+
+```json
+{
+  "swls.sparql": true
+}
+```
+
+Once enabled, SWLS activates for `.sq` and `.rq` files and provides the same diagnostics and semantic highlighting available for Turtle and TriG.
+
+<Note>
+  Because SPARQL support is still under active development, you may encounter incomplete features or rough edges. Bug reports and feedback are welcome on the [issue tracker](https://github.com/SemanticWebLanguageServer/swls-vscode/issues).
+</Note>
+
+## Next steps
+
+<CardGroup cols={3}>
+  <Card title="Diagnostics" icon="triangle-exclamation" href="/features/diagnostics">
+    Learn about syntax errors, undefined prefix detection, and SHACL shape validation.
+  </Card>
+  <Card title="Completion" icon="wand-magic-sparkles" href="/features/completion">
+    Explore prefix expansion, property completion modes, and class suggestions.
+  </Card>
+  <Card title="Settings reference" icon="sliders" href="/configuration/settings-reference">
+    Full reference for every `swls.*` configuration setting.
+  </Card>
+</CardGroup>

@@ -1,0 +1,87 @@
+---
+title: "Using the Semantic Web Language Server with NeoVim"
+sidebarTitle: "NeoVim"
+description: "Configure the Semantic Web Language Server (swls) in NeoVim using the swls.nvim plugin or by pointing nvim-lspconfig at a swls binary."
+---
+
+SWLS ships as a VS Code extension, but the underlying language server (`swls`) is a standalone binary that communicates over standard LSP — any editor with LSP support can use it. For NeoVim, an official plugin is available that handles installation and wiring automatically. If you prefer full control, you can also set up the binary manually using `nvim-lspconfig`.
+
+## swls.nvim plugin
+
+The recommended way to use SWLS in NeoVim is through the official **swls.nvim** plugin. It manages binary downloads, file-type detection, and LSP client configuration for you.
+
+<CardGroup cols={1}>
+  <Card
+    title="SemanticWebLanguageServer/swls.nvim"
+    icon="github"
+    href="https://github.com/SemanticWebLanguageServer/swls.nvim"
+  >
+    Official NeoVim plugin for SWLS — installation instructions and full configuration reference.
+  </Card>
+</CardGroup>
+
+Refer to the plugin repository for installation steps (lazy.nvim, packer, etc.) and available configuration options. The plugin is the fastest path to a working setup and tracks the same release cadence as the VS Code extension.
+
+## Manual setup with nvim-lspconfig
+
+If you want to wire up `swls` yourself — for example, to use a specific binary version or integrate it into an existing LSP configuration — you can point `nvim-lspconfig` directly at the `swls` binary.
+
+**1. Download the binary**
+
+Grab the appropriate pre-built binary for your platform from the GitHub releases page:
+
+[https://github.com/SemanticWebLanguageServer/swls/releases](https://github.com/SemanticWebLanguageServer/swls/releases)
+
+Available targets: `linux-x86_64`, `linux-aarch64`, `macos-x86_64`, `macos-arm64`, `windows-x86_64.exe`, `windows-arm64.exe`.
+
+**2. Make it executable (Linux/macOS)**
+
+```bash
+chmod +x swls
+mv swls /usr/local/bin/swls
+```
+
+**3. Configure nvim-lspconfig**
+
+Register `swls` as a custom server and call `.setup {}` to activate it. The minimal Lua configuration below covers the four file types SWLS understands:
+
+```lua
+local lspconfig = require('lspconfig')
+
+lspconfig.swls = {
+  default_config = {
+    cmd = { '/usr/local/bin/swls' },
+    filetypes = { 'turtle', 'trig', 'jsonld', 'sparql' },
+    root_dir = lspconfig.util.root_pattern('.git', '.'),
+    settings = {},
+  },
+}
+
+lspconfig.swls.setup {}
+```
+
+**4. Add file-type detection**
+
+NeoVim does not recognise `.ttl`, `.trig`, `.jsonld`, `.rq`, or `.sq` out of the box. Add the mappings via `vim.filetype.add()` in your init file:
+
+```lua
+vim.filetype.add({
+  extension = {
+    ttl   = 'turtle',
+    trig  = 'trig',
+    jsonld = 'jsonld',
+    rq    = 'sparql',
+    sq    = 'sparql',
+  },
+})
+```
+
+Place this before your `lspconfig` setup so that the file type is resolved correctly when a buffer is opened.
+
+<Note>
+  Manual setup is intended for advanced use cases. The swls.nvim plugin handles binary downloads, file-type registration, and LSP configuration automatically — you do not need any of the above steps when using it.
+</Note>
+
+<Tip>
+  For the best NeoVim experience, use the official plugin at [https://github.com/SemanticWebLanguageServer/swls.nvim](https://github.com/SemanticWebLanguageServer/swls.nvim).
+</Tip>

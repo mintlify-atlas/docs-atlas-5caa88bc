@@ -1,0 +1,84 @@
+---
+title: "Managing SWLS Native Binary Updates"
+sidebarTitle: "Updates"
+description: "SWLS checks GitHub for native binary updates on startup, prompts to install, and can update automatically. Learn how to configure or disable update checks."
+---
+
+SWLS ships with a bundled WASM worker so the language server is available immediately after installing the extension — no extra setup required. Optionally, the extension can download a native `swls` binary compiled for your platform, which provides better performance. The update system handles downloading, versioning, and switching between the WASM fallback and the native binary transparently.
+
+## How updates work
+
+On each startup, when `swls.checkUpdate` is `true` (the default), the extension queries the [GitHub Releases API](https://api.github.com/repos/SemanticWebLanguageServer/swls/releases) for the `SemanticWebLanguageServer/swls` repository.
+
+The update flow works as follows:
+
+1. The extension runs the existing local binary with `--version` to read its current version tag.
+2. It compares that tag against the latest release on GitHub (the most recent tag prefixed with `swls-`).
+3. If the versions differ — or if no local binary exists yet — a notification appears:
+   - **First install:** "swls language server is available. Install it now?" with an **Install** button.
+   - **Upgrade:** "swls update available: `<current>` → `<latest>`" with an **Update** button.
+4. After accepting, the binary is downloaded to the extension directory and named `swls` on Linux/macOS or `swls.exe` on Windows.
+5. A **Reload** prompt appears; clicking it restarts the window so the new binary is used immediately.
+
+If the download fails, a warning notification is shown and the extension continues running the previous binary (or the WASM worker).
+
+## Automatic updates
+
+Set `swls.automaticUpdate` to `true` to skip the confirmation prompt. The extension downloads and installs any available update silently in the background, then shows only the final **Reload** prompt.
+
+```json
+{
+  "swls.automaticUpdate": true
+}
+```
+
+<Note>
+  Automatic updates still show the **Reload** prompt after a successful download — a window reload is required to switch to the new binary.
+</Note>
+
+## Disabling update checks
+
+Set `swls.checkUpdate` to `false` to opt out of update checks entirely. The extension will use whatever binary is already installed (or fall back to WASM) and will never contact the GitHub API on startup.
+
+```json
+{
+  "swls.checkUpdate": false
+}
+```
+
+## Using a custom binary
+
+Set `swls.command` to the absolute path of a specific `swls` binary. When this setting is non-empty, the extension uses that binary directly and bypasses both the bundled binary lookup and the update check.
+
+```json
+{
+  "swls.command": "/usr/local/bin/swls"
+}
+```
+
+This is useful for:
+
+- **Pinning to a specific version** — point to a binary you downloaded manually from the [releases page](https://github.com/SemanticWebLanguageServer/swls/releases).
+- **Self-built binaries** — point to a binary compiled from source.
+- **System-wide installs** — share a single binary across multiple VS Code workspaces.
+
+<Warning>
+  When `swls.command` is set, the extension does not validate the binary version. Make sure the path stays valid; if the binary is missing or fails to start, the extension falls back to the WASM worker.
+</Warning>
+
+## Supported platforms
+
+The extension selects the correct artifact from the GitHub release based on your OS and CPU architecture:
+
+| Platform | Architecture | Release artifact |
+|---|---|---|
+| Windows | x86\_64 | `swls-windows-x86_64.exe` |
+| Windows | arm64 | `swls-windows-arm64.exe` |
+| Linux | x86\_64 | `swls-linux-x86_64` |
+| Linux | aarch64 | `swls-linux-aarch64` |
+| macOS | x86\_64 | `swls-macos-x86_64` |
+| macOS | arm64 | `swls-macos-arm64` |
+
+<Note>
+  If your platform does not match any of the entries above, the extension will not attempt a download and will fall back to the bundled WASM worker automatically. All features remain available; only raw performance may differ.
+</Note>

@@ -1,0 +1,84 @@
+{
+  "projectType": "general",
+  "projectName": "SWLS – Semantic Web Language Server for VS Code",
+  "projectDescription": "A VS Code extension that brings IDE-quality support for Semantic Web languages — Turtle, TriG, JSON-LD, and SPARQL — via a language server with autocompletion, diagnostics, formatting, and SHACL validation.",
+  "theme": "luma",
+  "primaryColor": "#8A2BE2",
+  "lightColor": "#A855F7",
+  "darkColor": "#6D28D9",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/diagnostics",
+              "features/completion",
+              "features/hover-rename-formatting",
+              "features/semantic-highlighting"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/settings-reference",
+              "configuration/ontologies-and-shapes",
+              "configuration/completion-modes"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/shacl-validation",
+              "guides/updates",
+              "guides/neovim"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Autocompletion for prefixes, properties, and classes in Turtle, TriG, JSON-LD, and SPARQL",
+    "Diagnostics for syntax errors, undefined prefixes, and SHACL shape violations",
+    "Document formatting for Turtle and JSON-LD",
+    "Hover information showing labels, descriptions, and class info for IRIs",
+    "Rename support for terms local to the current file",
+    "Full semantic token highlighting for all supported languages",
+    "WASM fallback — works immediately without any native binary setup",
+    "Automatic update checking and installation from GitHub releases",
+    "Configurable property completion modes: none, loose, and strict"
+  ],
+  "publicApiSurface": [
+    "swls.command — path to swls native binary",
+    "swls.turtle — enable/disable Turtle language support",
+    "swls.trig — enable/disable TriG language support",
+    "swls.jsonld — enable/disable JSON-LD language support",
+    "swls.sparql — enable/disable SPARQL language support",
+    "swls.checkUpdate — check GitHub for new releases on startup",
+    "swls.automaticUpdate — install updates without prompting",
+    "swls.log — log level: error, warn, info, debug, trace",
+    "swls.ontologies — extra ontology URLs to load",
+    "swls.shapes — extra SHACL shape URLs to load",
+    "swls.disabled — features to disable (e.g. 'shapes')",
+    "swls.prefixDisabled — prefix.cc prefixes to hide from completions",
+    "swls.completion.mode — property completion mode: none, loose, strict",
+    "swls.completion.strict — namespace prefixes that require domain matching",
+    "swls.completion.except — namespace prefixes always suggested regardless of domain",
+    "custom/readFile LSP request handler",
+    "custom/readDir LSP request handler",
+    "custom/isFile LSP request handler",
+    "custom/glob LSP request handler",
+    "custom/isDir LSP request handler"
+  ]
+}

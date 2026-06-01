@@ -1,0 +1,71 @@
+---
+title: "Smart Autocompletion for Prefixes, Properties, and Classes"
+sidebarTitle: "Completion"
+description: "SWLS provides context-aware autocompletion for namespace prefixes, RDF properties ordered by domain relevance, and OWL classes when using rdf:type."
+---
+
+SWLS provides context-aware autocompletion at three levels: namespace prefixes (including automatic declaration insertion), RDF properties filtered and ranked by domain relevance, and OWL classes suggested when the predicate indicates a type assertion. All completion candidates come from loaded ontologies and the built-in prefix registry at prefix.cc.
+
+## Prefix completion
+
+Typing the start of a known prefix triggers a completion item that expands to the full prefixed name **and** inserts the corresponding `@prefix` declaration at the top of the file if it is not already present. You never have to write the declaration by hand.
+
+```turtle
+# Start typing "foa" and accept the completion item for "foaf:"
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .   # ← inserted automatically
+@prefix ex:   <http://example.org/> .
+
+ex:Alice a foaf:Person ;       # ← "foaf:" expanded from "foa"
+    foaf:name "Alice" .
+```
+
+<Note>
+  You can hide prefixes you never use from completion suggestions with `swls.prefixDisabled`. For example, `"swls.prefixDisabled": ["og", "schema"]` removes those two prefixes from the list.
+</Note>
+
+## Property completion
+
+After a subject, SWLS suggests properties to use as predicates. Candidates are drawn from loaded ontologies and ranked by how closely the property's `rdfs:domain` matches the known type of the current subject. Properties with an exact domain match appear first; properties with no domain restriction follow.
+
+```turtle
+@prefix ex:   <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:Alice a foaf:Person ;
+    # ← trigger completion here: foaf:name, foaf:mbox, foaf:knows, etc.
+    #   appear before unrelated properties because foaf:Person is the subject type
+    foaf:name "Alice" .
+```
+
+The ranking behaviour is controlled by `swls.completion.mode`:
+
+| Mode | Behaviour |
+|---|---|
+| `none` | Server default (same as `loose`) |
+| `loose` | All properties suggested; domain-matched ones ranked first |
+| `strict` | Only properties whose domain matches the subject type are shown |
+
+<Note>
+  Fine-tune the mode per namespace using `swls.completion.strict` (force strict for specific prefixes even in `loose` mode) and `swls.completion.except` (always show specific prefixes even in `strict` mode). See [Completion Modes](/configuration/completion-modes) for details.
+</Note>
+
+## Class completion
+
+When the predicate is `a` (shorthand for `rdf:type`) or `rdf:type`, SWLS switches the completion context to suggest OWL classes instead of properties. Only classes from loaded ontologies are offered, keeping the list focused.
+
+```turtle
+@prefix ex:   <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+
+ex:Alice a foaf:Person .
+#          ↑ trigger completion after "a ":
+#            foaf:Person, foaf:Agent, schema:Person, owl:Thing, ...
+
+ex:AcmeCorp a schema:Organization .
+#             ↑ classes from schema.org ranked by ontology match
+```
+
+<Note>
+  Class and property completions are only as rich as the ontologies you have loaded. Add extra ontology URLs via `swls.ontologies` to broaden the suggestion set. See [Ontologies and Shapes](/configuration/ontologies-and-shapes).
+</Note>

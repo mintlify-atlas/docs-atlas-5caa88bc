@@ -1,0 +1,53 @@
+---
+title: "SWLS: Semantic Web IDE Support for VS Code"
+sidebarTitle: "Introduction"
+description: "SWLS is a VS Code extension providing autocompletion, diagnostics, formatting, and SHACL validation for Turtle, TriG, JSON-LD, and SPARQL."
+---
+
+SWLS (Semantic Web Language Server) is a VS Code extension that brings full IDE support to Semantic Web languages. It covers Turtle, TriG, JSON-LD, and SPARQL — offering autocompletion, diagnostics, formatting, SHACL shape validation, hover documentation, semantic highlighting, and more. On desktop, SWLS runs a native `swls` binary over stdio for best performance; if no binary is present it falls back to a bundled WASM worker so the language server is available immediately with zero extra setup. In browser-based VS Code environments (such as vscode.dev), SWLS runs entirely via a Web Worker.
+
+## Supported languages
+
+| Language | Extensions | Enabled by default |
+|---|---|---|
+| Turtle | `.ttl` | ✅ Yes |
+| TriG | `.trig` | ✅ Yes |
+| JSON-LD | `.jsonld`, `.json` | ✅ Yes |
+| SPARQL | `.sq`, `.rq` | ⚠️ Experimental — disabled by default |
+
+<Note>
+  SPARQL support is still experimental. Enable it by setting `"swls.sparql": true` in your VS Code settings.
+</Note>
+
+## How it works
+
+SWLS adapts its startup strategy to the environment it is running in:
+
+- **Desktop (Node.js)** — On activation, the extension first looks for a native `swls` binary in its own extension directory (or the path specified in `swls.command`). If found, it spawns it as a child process and communicates via stdio using the Language Server Protocol. This path offers the lowest latency and CPU overhead.
+- **Desktop WASM fallback** — If no native binary is present, the extension loads a bundled WASM build of the language server inside a Node.js `worker_threads` Worker. The worker communicates via `postMessage`, and the client bridges that to LSP's Content-Length framing. This means the full feature set is available the moment you install the extension, before any binary download.
+- **Browser (vscode.dev / GitHub Codespaces web)** — The `browser` entry point in the extension manifest (`browserClientMain`) spins up a Web Worker using the VS Code `Worker` API and runs the WASM server bundle inside it. No Node.js APIs are used; all file-system requests are proxied back to the extension host through custom LSP request handlers (`custom/readFile`, `custom/readDir`, `custom/glob`, etc.).
+
+In the background, the extension periodically checks GitHub Releases for a newer native binary and prompts you to install or update. After a download the window reload switches over from WASM to the faster native process.
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Diagnostics" icon="triangle-exclamation">
+    Instant feedback for syntax errors, undefined prefixes, and SHACL shape violations as you type.
+  </Card>
+  <Card title="Completion" icon="wand-magic-sparkles">
+    Prefix expansion, property suggestions ordered by domain relevance, and class suggestions when the predicate is `a`.
+  </Card>
+  <Card title="Hover & Rename" icon="arrow-pointer">
+    Hover over any IRI to see its label, description, and class information. Rename terms that are local to the current file.
+  </Card>
+  <Card title="Formatting" icon="align-left">
+    Format Turtle and JSON-LD documents with VS Code's built-in Format Document command.
+  </Card>
+  <Card title="Semantic Highlighting" icon="palette">
+    Full semantic token highlighting across all four supported languages, including custom token types for language tags and boolean literals.
+  </Card>
+  <Card title="SHACL Validation" icon="shield-check">
+    Load SHACL shapes via `swls.shapes` and get live violations reported as diagnostics inline in your editor.
+  </Card>
+</CardGroup>

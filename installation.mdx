@@ -1,0 +1,66 @@
+---
+title: "Install SWLS in VS Code or NeoVim"
+sidebarTitle: "Installation"
+description: "Install the Semantic Web Language Server extension from VS Code Marketplace, Open VSX, or configure it in NeoVim with the swls.nvim plugin."
+---
+
+SWLS can be installed in VS Code directly from the Visual Studio Marketplace or Open VSX Registry, and works on desktop and in browser-based VS Code environments. A separate NeoVim plugin is also available for users who prefer that editor. No configuration is required to get started — the extension activates automatically when you open a supported file.
+
+<Tabs>
+  <Tab title="VS Code">
+    ## Installing in VS Code
+
+    SWLS requires **VS Code >=1.100.0**.
+
+    <Steps>
+      <Step title="Find the extension">
+        Open the Extensions panel (`Ctrl+Shift+X` / `Cmd+Shift+X`) and search for **"Semantic Web LSP"**, or open the Marketplace page directly:
+
+        - [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ajuvercr.semantic-web-lsp)
+        - [Open VSX Registry](https://open-vsx.org/extension/ajuvercr/semantic-web-lsp)
+      </Step>
+      <Step title="Install the extension">
+        Click **Install**. VS Code will download and install the extension automatically.
+      </Step>
+      <Step title="Open a Turtle file">
+        Open any `.ttl` file — the extension activates automatically for Turtle, TriG, and JSON-LD files. You will see the `swls` output channel become active in the Output panel.
+      </Step>
+    </Steps>
+
+    ### Startup behavior
+
+    When the extension activates it determines the best available server implementation:
+
+    1. **Native binary** — SWLS looks for an `swls` (or `swls.exe` on Windows) binary inside its own extension directory. If `swls.command` is set in your settings, that path is used instead. The binary is launched as a child process over stdio.
+    2. **WASM fallback** — If no native binary is found, the extension loads a bundled WASM build of the language server inside a Node.js `worker_threads` Worker. All LSP features are available immediately; there is no need to wait for a binary download.
+
+    <Info>
+      You can set `"swls.command": "/usr/local/bin/swls"` in your VS Code settings to point SWLS at a binary you have built or installed manually, instead of the one bundled in the extension directory.
+    </Info>
+
+    ### Automatic update checks
+
+    On startup, SWLS queries the GitHub Releases API for the [`SemanticWebLanguageServer/swls`](https://github.com/SemanticWebLanguageServer/swls) repository. If a newer release is available you will be prompted with an **Install** or **Update** button. After the download completes you will be asked to reload the window; the reload switches from the WASM fallback to the newly installed native binary.
+
+    <Note>
+      Update checks require network access to `api.github.com`. If you are in an air-gapped environment, set `"swls.checkUpdate": false` to suppress the check. See the Updates guide for full details on controlling update behaviour.
+    </Note>
+
+    | Setting | Default | Description |
+    |---|---|---|
+    | `swls.checkUpdate` | `true` | Check GitHub for new releases on startup |
+    | `swls.automaticUpdate` | `false` | Install updates without prompting |
+    | `swls.command` | `""` | Path to a custom `swls` binary |
+  </Tab>
+  <Tab title="NeoVim">
+    ## Installing in NeoVim
+
+    A dedicated NeoVim plugin wraps the SWLS binary and wires it up to NeoVim's built-in LSP client.
+
+    The plugin is available at [SemanticWebLanguageServer/swls.nvim](https://github.com/SemanticWebLanguageServer/swls.nvim).
+
+    <Info>
+      For full NeoVim setup instructions — including plugin manager snippets, binary installation, and configuration options — see the [NeoVim guide](/guides/neovim).
+    </Info>
+  </Tab>
+</Tabs>

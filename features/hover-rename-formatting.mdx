@@ -1,0 +1,76 @@
+---
+title: "Hover Documentation, Rename, and Document Formatting"
+sidebarTitle: "Hover & Rename"
+description: "SWLS shows labels, descriptions, and class info on hover for any IRI, supports renaming local terms, and formats Turtle and JSON-LD documents."
+---
+
+Beyond diagnostics and completion, SWLS enriches editing with three quality-of-life features: hover documentation that surfaces ontology metadata for any IRI, a rename operation for terms defined in the current file, and a document formatter for Turtle and JSON-LD. Together they reduce the need to switch between the editor and external ontology browsers.
+
+## Hover
+
+Hovering over any IRI — whether a class, property, or individual — shows a tooltip populated from loaded ontologies. The tooltip includes:
+
+- **`rdfs:label`** — the human-readable name of the term
+- **`rdfs:comment`** — the term's description or usage note
+- **`rdf:type`** — the term's type (e.g. `owl:Class`, `owl:ObjectProperty`)
+
+```turtle
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ex:   <http://example.org/> .
+
+ex:Alice a foaf:Person .
+#            ↑ hover here to see:
+#              Label: "Person"
+#              Comment: "A person."
+#              Type: owl:Class
+```
+
+Hover information is only available for terms present in loaded ontologies. Terms from ontologies not listed in `swls.ontologies` (and not already bundled) will show an empty tooltip.
+
+## Rename
+
+Use VS Code's **Rename Symbol** command (`F2`) to rename any term that is defined within the current file. SWLS updates every reference to that term in the document.
+
+```turtle
+@prefix ex: <http://example.org/> .
+
+ex:Alice a ex:Person ;   # rename ex:Alice → ex:Bob here…
+    ex:name "Alice" .
+
+ex:Alice ex:knows ex:Bob .   # …and this reference is updated too
+```
+
+<Warning>
+  Rename only applies to terms that are local to the open file. IRIs defined in external ontologies or other workspace files cannot be renamed — attempting to do so will produce no changes or an error.
+</Warning>
+
+## Formatting
+
+SWLS registers a document formatter for Turtle (`.ttl`) and JSON-LD (`.jsonld`, `.json`) files. Trigger it with the VS Code **Format Document** command:
+
+- **Keyboard**: `Shift+Alt+F` (Windows/Linux) or `Shift+Option+F` (macOS)
+- **Command Palette**: `Format Document`
+- **Right-click menu**: **Format Document**
+
+<Note>
+  Formatting is currently supported for Turtle and JSON-LD only. TriG and SPARQL documents are not formatted by SWLS.
+</Note>
+
+### Format on save
+
+Enable format-on-save per language in your VS Code `settings.json` to keep files consistently formatted without an extra keystroke:
+
+```json
+{
+  "[turtle]": {
+    "editor.formatOnSave": true
+  },
+  "[jsonld]": {
+    "editor.formatOnSave": true
+  }
+}
+```
+
+<Tip>
+  Add these settings to a `.vscode/settings.json` file in your project root to share formatting preferences with the whole team.
+</Tip>

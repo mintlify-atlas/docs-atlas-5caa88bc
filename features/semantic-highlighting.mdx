@@ -1,0 +1,75 @@
+---
+title: "Semantic Token Highlighting for RDF and SPARQL"
+sidebarTitle: "Highlighting"
+description: "SWLS provides full semantic token highlighting for Turtle, TriG, JSON-LD, and SPARQL, with custom token types for language tags, booleans, and enums."
+---
+
+VS Code supports two layers of syntax highlighting: syntactic (TextMate grammar-based, applied at parse time) and semantic (LSP-driven, applied after the language server analyzes the document). SWLS participates in the semantic layer for all four supported languages — Turtle, TriG, JSON-LD, and SPARQL — delivering richer, more accurate coloring that reflects the actual meaning of each token rather than just its surface form.
+
+## Enabled by default
+
+Semantic highlighting is activated for all four languages out of the box via the extension's `configurationDefaults`. No configuration is required:
+
+```json
+{
+  "[turtle]": {
+    "editor.semanticHighlighting.enabled": true
+  },
+  "[trig]": {
+    "editor.semanticHighlighting.enabled": true
+  },
+  "[jsonld]": {
+    "editor.semanticHighlighting.enabled": true
+  },
+  "[sparql]": {
+    "editor.semanticHighlighting.enabled": true
+  }
+}
+```
+
+<Tip>
+  If you have previously set `editor.semanticHighlighting.enabled` to `false` for one of these languages in your own `settings.json`, that override takes precedence. Remove or flip it to restore SWLS semantic highlighting.
+</Tip>
+
+## Custom semantic token types
+
+In addition to the standard LSP token types (e.g. `class`, `variable`, `namespace`), SWLS registers two custom token types:
+
+| Token | Super type | Description | Example |
+|---|---|---|---|
+| `langTag` | `keyword` | Language tag on a string literal | `"hello"@en` → `@en` |
+| `boolean` | `keyword` | Boolean literal value | `true`, `false` |
+
+Standard token types used by SWLS also include `enum`, `enumMember`, and `property`, which map to well-known ontology constructs.
+
+## TextMate scope mappings
+
+Each semantic token type maps to a standard TextMate scope, which means every VS Code color theme that assigns colors to those scopes will automatically style SWLS tokens correctly — no theme-specific configuration needed.
+
+| Token | TextMate scope |
+|---|---|
+| `langTag` | `keyword.control` |
+| `boolean` | `constant.language` |
+| `enum` | `entity.name.tag` |
+| `enumMember` | `support.constant` |
+| `property` | `entity.other.attribute-name` |
+
+These scopes are widely supported across popular themes such as One Dark Pro, Dracula, GitHub Theme, and the built-in VS Code Dark+ and Light+ themes.
+
+## Example
+
+The following Turtle snippet illustrates several token types that SWLS highlights semantically:
+
+```turtle
+@prefix ex:   <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+ex:Alice a foaf:Person ;          # foaf:Person → enum (class)
+    foaf:name "Alice"@en ;        # foaf:name → property; @en → langTag
+    foaf:isPrimaryTopicOf ex:doc ;
+    ex:active true .              # true → boolean
+```
+
+<Note>
+  The `langTag` and `boolean` custom types are contributed by SWLS itself. If a color theme does not explicitly style `keyword.control` or `constant.language`, those tokens may appear in the theme's default foreground color.
+</Note>

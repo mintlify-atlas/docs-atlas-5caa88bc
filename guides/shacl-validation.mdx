@@ -1,0 +1,80 @@
+---
+title: "Validate RDF Data Against SHACL Shapes with SWLS"
+sidebarTitle: "SHACL Validation"
+description: "Use SWLS to validate Turtle and TriG documents against SHACL shapes in real time, loading shapes from remote or workspace URLs via swls.shapes."
+---
+
+SHACL (Shapes Constraint Language) lets you define constraints on RDF graphs — required properties, value types, cardinality rules, and more. SWLS integrates SHACL validation directly into the editor: shapes are loaded when the language server starts, and any violations in your open documents appear immediately as diagnostics (squiggly underlines) in the editor and in the Problems panel, without a separate validation step.
+
+## How SHACL validation works in SWLS
+
+SWLS loads shape files at startup using the URLs listed in `swls.shapes`. Once loaded, the server continuously validates every open Turtle or TriG document against those shapes. Violations surface as warnings or errors inline — the same mechanism used for syntax errors and undefined prefixes.
+
+Shape loading uses the same URL resolution that applies to ontologies: you can point to local workspace files with `file://` URLs, or to remote HTTP/HTTPS resources. The server re-reads the shapes setting when you reload the window.
+
+## Setting up SHACL validation
+
+<Steps>
+  <Step title="Create or obtain a SHACL shapes file">
+    Write your constraints in a Turtle file (`.ttl`). Here is a minimal example that requires every `foaf:Person` to have at least one `foaf:name` of type `xsd:string`:
+
+    ```turtle
+    @prefix sh:   <http://www.w3.org/ns/shacl#> .
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+    @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+    @prefix ex:   <http://example.org/> .
+
+    ex:PersonShape
+        a sh:NodeShape ;
+        sh:targetClass foaf:Person ;
+        sh:property [
+            sh:path foaf:name ;
+            sh:minCount 1 ;
+            sh:datatype xsd:string ;
+        ] .
+    ```
+  </Step>
+
+  <Step title="Register the shapes file in your workspace settings">
+    Add the shapes file URL to `swls.shapes` in your workspace `.vscode/settings.json`:
+
+    ```json
+    {
+      "swls.shapes": ["file:///path/to/shapes.ttl"]
+    }
+    ```
+
+    You can list multiple URLs; SWLS loads all of them and unions the shape graphs together.
+  </Step>
+
+  <Step title="Open a data file and inspect the Problems panel">
+    Open any Turtle or TriG file in your workspace. SWLS validates it against the loaded shapes automatically. Any violations appear as diagnostics in the editor gutter and in the **Problems** panel (`Ctrl+Shift+M` / `Cmd+Shift+M`).
+
+    For example, this data file violates the `ex:PersonShape` defined above — `ex:alice` is typed as `foaf:Person` but has no `foaf:name`:
+
+    ```turtle
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+    @prefix ex:   <http://example.org/> .
+
+    ex:alice a foaf:Person .  # Missing required foaf:name — SHACL violation
+    ```
+
+    SWLS will raise a diagnostic on `ex:alice` indicating the `sh:minCount` constraint is not satisfied.
+  </Step>
+</Steps>
+
+## Disabling SHACL validation
+
+If you want to keep your shapes loaded (so they still inform completions) but suppress violation diagnostics, add `"shapes"` to the `swls.disabled` array:
+
+```json
+{
+  "swls.disabled": ["shapes"]
+}
+```
+
+To re-enable validation, remove `"shapes"` from the array and reload the window.
+
+<Note>
+  For remote shape URLs and details on loading ontologies alongside shapes, see the [Ontologies & Shapes configuration reference](/configuration/ontologies-and-shapes).
+</Note>

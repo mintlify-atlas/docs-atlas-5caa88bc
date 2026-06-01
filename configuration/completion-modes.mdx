@@ -1,0 +1,104 @@
+---
+title: "Configuring Property Completion Modes in SWLS"
+sidebarTitle: "Completion Modes"
+description: "Control how SWLS suggests RDF properties using the loose, strict, and none completion modes, with per-namespace overrides via swls.completion.strict and .except."
+---
+
+SWLS offers three property completion modes that control which properties appear in the suggestion list for a given subject node: `none` defers to the server's built-in ranking, `loose` surfaces all known properties regardless of type declarations, and `strict` filters suggestions to properties whose `rdfs:domain` matches the subject's declared `rdf:type`. You can also override the global mode on a per-namespace basis using `swls.completion.strict` and `swls.completion.except`.
+
+---
+
+## Completion modes
+
+### `none` (default)
+
+```json
+{ "swls.completion.mode": "none" }
+```
+
+The server uses its own default property ranking. In practice this means properties are ordered by how closely their domain matches the current subject type, but no suggestions are filtered out. This is the safest choice when you are getting started and want to see everything the server knows about.
+
+---
+
+### `loose`
+
+```json
+{ "swls.completion.mode": "loose" }
+```
+
+Every property in the indexed ontologies is offered as a completion for any subject, regardless of whether its `rdfs:domain` matches the subject's `rdf:type`. Use `loose` mode when you want maximum discoverability and don't want the server to hide anything from you — for example, when exploring an unfamiliar ontology.
+
+---
+
+### `strict`
+
+```json
+{ "swls.completion.mode": "strict" }
+```
+
+Only properties whose `rdfs:domain` is compatible with the subject's declared `rdf:type` are suggested. Subjects without a declared type receive no property suggestions. Use `strict` mode when working with large ontologies (e.g. Schema.org) where the full property list would otherwise be overwhelming.
+
+<Tip>
+  `strict` mode is strongly recommended when you have loaded a large ontology such as Schema.org. Limiting suggestions to domain-matched properties keeps the completion list short and relevant, significantly reducing the time spent scanning irrelevant items.
+</Tip>
+
+---
+
+## Setting the mode
+
+Add the following to your `settings.json` (user or workspace level):
+
+```json
+{ "swls.completion.mode": "strict" }
+```
+
+---
+
+## Per-namespace overrides
+
+The global `swls.completion.mode` can be overridden for individual namespace URI prefixes. Both override settings take precedence over the global mode.
+
+### `swls.completion.strict` — enforce domain matching for specific namespaces in `loose` mode
+
+When the global mode is `loose`, you may still want certain vocabularies to be treated strictly — for example, Schema.org where the full property list runs to hundreds of items. List the namespace URI prefixes that should always require domain matching:
+
+```json
+{ "swls.completion.strict": ["https://schema.org/"] }
+```
+
+Properties whose IRI starts with `https://schema.org/` will only be suggested when the subject's `rdf:type` is compatible, even though the global mode is `loose`.
+
+---
+
+### `swls.completion.except` — always suggest specific namespaces regardless of `strict` mode
+
+When the global mode is `strict`, foundational RDF/OWL properties such as `rdf:type`, `rdfs:label`, or `owl:sameAs` are genuinely applicable to almost any subject. Rather than force-typing every blank node just to get those suggestions, add their namespace URIs to `swls.completion.except`:
+
+```json
+{
+  "swls.completion.except": [
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "http://www.w3.org/2000/01/rdf-schema#"
+  ]
+}
+```
+
+Properties from those namespaces will always appear in completions regardless of the subject's `rdf:type` declaration.
+
+---
+
+<Note>
+  `swls.completion.strict` and `swls.completion.except` both take precedence over whatever `swls.completion.mode` is set to. If a property's namespace matches an entry in `swls.completion.strict`, it is treated as strict; if it matches `swls.completion.except`, it is treated as loose — regardless of the global mode value.
+</Note>
+
+---
+
+## Hiding unwanted prefix.cc completions
+
+Prefix suggestions sourced from prefix.cc can be noisy if you never use certain well-known prefix aliases. Suppress specific short names with `swls.prefixDisabled`:
+
+```json
+{ "swls.prefixDisabled": ["dct", "dcterms"] }
+```
+
+This removes those entries from the prefix completion list while leaving all property and class completions untouched.

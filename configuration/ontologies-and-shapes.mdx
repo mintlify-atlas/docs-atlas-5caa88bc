@@ -1,0 +1,91 @@
+---
+title: "Loading Ontologies and SHACL Shapes into SWLS"
+sidebarTitle: "Ontologies & Shapes"
+description: "Extend SWLS completions and enable SHACL validation by loading external ontology and shape URLs via swls.ontologies and swls.shapes settings."
+---
+
+By default SWLS ships with a set of well-known vocabularies (RDF, RDFS, OWL, and a selection of common ontologies) already indexed for completions. When you work with a domain-specific ontology or need real-time SHACL validation against your own shapes, you can point SWLS at additional URL endpoints. SWLS fetches those URLs at startup, indexes all classes and properties for completion, and continuously validates open documents against any SHACL shapes you have loaded.
+
+---
+
+## Loading ontologies
+
+The `swls.ontologies` setting accepts an array of URLs pointing to Turtle or other RDF serialisation files. SWLS fetches each URL once when the extension activates and adds every class and property it finds to the completion index.
+
+### Example: add Schema.org
+
+```json
+{
+  "swls.ontologies": [
+    "https://schema.org/version/latest/schemaorg-current-https.ttl"
+  ]
+}
+```
+
+Once the ontology is loaded, Schema.org classes such as `schema:Person` or `schema:Product` appear in class completions, and properties such as `schema:name` or `schema:datePublished` appear in property completions — ordered by domain relevance when you have a completion mode set.
+
+You can supply multiple URLs in the array; SWLS processes them all:
+
+```json
+{
+  "swls.ontologies": [
+    "https://schema.org/version/latest/schemaorg-current-https.ttl",
+    "https://www.w3.org/ns/dcat.ttl"
+  ]
+}
+```
+
+---
+
+## Loading SHACL shapes
+
+The `swls.shapes` setting accepts an array of URLs pointing to SHACL shape files (Turtle serialisation). SWLS fetches them at startup and validates every open document against the loaded shapes in real time. Violations surface as diagnostics — red underlines in the editor and entries in the **Problems** panel.
+
+### Example
+
+```json
+{
+  "swls.shapes": [
+    "https://example.org/my-shapes.ttl"
+  ]
+}
+```
+
+Multiple shape files are supported:
+
+```json
+{
+  "swls.shapes": [
+    "https://example.org/my-shapes.ttl",
+    "https://example.org/shared-constraints.ttl"
+  ]
+}
+```
+
+For a practical walkthrough of authoring shapes and interpreting diagnostics, see the [SHACL Validation guide](/guides/shacl-validation).
+
+---
+
+## Disabling SHACL validation
+
+If you have shapes loaded but want to mute all shape-related diagnostics temporarily — without removing the URLs — set `swls.disabled` to include `"shapes"`:
+
+```json
+{
+  "swls.disabled": ["shapes"]
+}
+```
+
+Remove `"shapes"` from the array to re-enable validation without any other changes.
+
+---
+
+## Notes on URL accessibility
+
+<Warning>
+  URLs supplied to `swls.ontologies` and `swls.shapes` must be reachable from the machine running VS Code. SWLS does not support bare local filesystem paths in these arrays. If you need to load a local file, either serve it via a local HTTP server or convert the path to a `file://` URI (e.g. `file:///home/user/project/shapes.ttl`).
+</Warning>
+
+<Tip>
+  Use workspace-scoped settings in `.vscode/settings.json` to load project-specific ontologies and shapes without changing your global VS Code configuration. This way each project declares exactly the vocabularies it depends on, and collaborators who open the same workspace get the same completions automatically.
+</Tip>

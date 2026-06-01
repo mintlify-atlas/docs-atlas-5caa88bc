@@ -1,0 +1,71 @@
+---
+title: "SWLS Settings Reference — All swls.* Options"
+sidebarTitle: "Settings Reference"
+description: "Complete reference for all swls.* VS Code settings: language toggles, binary path, logging, ontologies, shapes, completion mode, and update behavior."
+---
+
+All SWLS settings live under the `swls` prefix and can be configured through the VS Code Settings UI (**Preferences: Open Settings (UI)**) or directly in your `settings.json` file. Workspace-scoped settings in `.vscode/settings.json` take precedence over user-level settings, which is useful for per-project configurations.
+
+## All settings
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `swls.command` | `string` | `""` | Path to the `swls` binary. If empty, the bundled binary in the extension directory is used; falls back to the WASM worker if no binary is found. |
+| `swls.turtle` | `boolean` | `true` | Enable Turtle language support (`.ttl` files). |
+| `swls.trig` | `boolean` | `true` | Enable TriG language support (`.trig` files). |
+| `swls.jsonld` | `boolean` | `true` | Enable JSON-LD language support (`.jsonld`, `.json` files). |
+| `swls.sparql` | `boolean` | `false` | Enable SPARQL language support (`.sq`, `.rq` files). Experimental. |
+| `swls.checkUpdate` | `boolean` | `true` | Check GitHub releases for a newer `swls` binary on startup. |
+| `swls.automaticUpdate` | `boolean` | `false` | Download and install updates automatically without prompting. |
+| `swls.log` | `string` | `"debug"` | Log level for the language server. One of: `error`, `warn`, `info`, `debug`, `trace`. |
+| `swls.ontologies` | `string[]` | `[]` | Array of ontology URLs (Turtle/RDF) that SWLS fetches and indexes for completions. |
+| `swls.shapes` | `string[]` | `[]` | Array of SHACL shape URLs. SWLS validates open documents against these shapes in real time. |
+| `swls.disabled` | `string[]` | `[]` | Features to disable. Currently accepts `"shapes"` to turn off SHACL validation entirely. |
+| `swls.prefixDisabled` | `string[]` | `[]` | Prefix short names from prefix.cc to suppress from prefix completions (e.g. `"dct"`, `"dcterms"`). |
+| `swls.completion.mode` | `string` | `"none"` | Property completion mode: `none` (server default), `loose` (all properties), `strict` (domain-matched only). |
+| `swls.completion.strict` | `string[]` | `[]` | Namespace URI prefixes that require domain matching even when the global mode is `loose`. Takes precedence over `swls.completion.mode`. |
+| `swls.completion.except` | `string[]` | `[]` | Namespace URI prefixes always suggested regardless of domain even when the global mode is `strict`. Takes precedence over `swls.completion.mode`. |
+
+---
+
+## Key settings in detail
+
+<ParamField path="swls.command" type="string" default='""'>
+  Path to a custom `swls` binary. Leave empty to use the binary bundled with the extension. If no bundled binary exists, the extension automatically falls back to the WASM worker so the LSP is available immediately. Set this if you want to pin a specific binary version or use a self-compiled build.
+</ParamField>
+
+<ParamField path="swls.log" type="string" default='"debug"'>
+  Controls how verbose the language server's log output is. Accepted values in ascending verbosity order: `error`, `warn`, `info`, `debug`, `trace`. Log output appears in the **Output** panel under the **swls** channel (use the dropdown in the Output panel to switch to it). For day-to-day use, `warn` or `info` reduces noise; use `trace` when filing a bug report.
+</ParamField>
+
+<ParamField path="swls.completion.mode" type="string" default='"none"'>
+  Governs which properties appear in completion suggestions for a given subject node. `none` defers to the server's built-in behaviour; `loose` shows all known properties regardless of `rdfs:domain`; `strict` filters suggestions to properties whose `rdfs:domain` matches the subject's declared `rdf:type`. See [Completion Modes](/configuration/completion-modes) for a full walkthrough.
+</ParamField>
+
+<ParamField path="swls.disabled" type="string[]" default="[]">
+  Array of feature identifiers to turn off. The only accepted value today is `"shapes"`, which disables SHACL validation globally. Useful when you have shape files loaded via `swls.shapes` but want to temporarily mute diagnostics without removing the URLs.
+</ParamField>
+
+---
+
+## Example configuration
+
+A typical `settings.json` block that enables SPARQL, quiets the log, adds Schema.org as an ontology, and enables strict completions:
+
+```json
+{
+  "swls.sparql": true,
+  "swls.log": "warn",
+  "swls.ontologies": ["https://schema.org/version/latest/schemaorg-current-https.ttl"],
+  "swls.shapes": ["https://example.org/shapes.ttl"],
+  "swls.completion.mode": "strict"
+}
+```
+
+---
+
+## Viewing log output
+
+<Note>
+  Log messages from the language server are written to the **Output** panel in VS Code. Open it with **View → Output** (or `Ctrl+Shift+U` / `Cmd+Shift+U`) and select **swls** from the channel dropdown on the right. Individual sub-components also emit to named channels like **swls::debug**.
+</Note>
